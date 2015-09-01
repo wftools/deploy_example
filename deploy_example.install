@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * @file
+ * Deploy example module installation functions.
+ */
+
+define('DEPLOY_EXAMPLE_DIFF_USER_UUID', '8badf00d-a7de-4dbe-efca-fe01fee1251c');
+
+/**
+ * Implements hook_install().
+ */
+function deploy_example_install() {
+
+
+  // Create the role.
+  $role = (object) array('name' => 'Content Diff');
+  user_role_save($role);
+  $roles = array($role->rid => $role->rid);
+
+  // Assign the permission.
+  user_role_grant_permissions($role->rid, array('diff deployment plans'));
+
+  // Create the user.
+  $user = array(
+    'name' => 'ContentDiff',
+    'pass' => user_password(32),
+    'mail' => 'ContentDiff@example.com',
+    'uuid' => DEPLOY_EXAMPLE_DIFF_USER_UUID,
+    'status' => TRUE,
+    'roles' => $roles,
+  );
+
+  user_save(NULL, $user);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function deploy_example_uninstall() {
+  $ids = entity_get_id_by_uuid('user', array(DEPLOY_EXAMPLE_DIFF_USER_UUID), FALSE);
+  if ($ids) {
+    $uid = reset($ids);
+    user_delete($uid);
+  }
+
+  user_role_delete('Content Diff');
+}

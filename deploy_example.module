@@ -1,0 +1,43 @@
+<?php
+/**
+ * @file
+ * Code for the Deploy Example module.
+ */
+
+/**
+ * Implements hook_ctools_plugin_api().
+ */
+function deploy_example_ctools_plugin_api($module = NULL, $api = NULL) {
+  if ($module == "services" && $api == "services") {
+    return array("version" => "3");
+  }
+  if ($module == "deploy" && $api == "deploy_endpoints") {
+    return array("version" => "1");
+  }
+}
+
+/**
+ * Implements hook_deploy_auto_plan_status_alter().
+ */
+function deploy_example_deploy_auto_plan_status_alter(&$status, $type, $entity) {
+  // Don't allow users 0 and 1 into the Deployment Plan.
+  if ($type == 'user' && in_array($entity->uid, array(0, 1))) {
+    $status = FALSE;
+  }
+}
+
+/**
+ * Implements hook_environment_indicator_matched_indicator_alter().
+ */
+function deploy_example_environment_indicator_matched_indicator_alter(&$env) {
+
+  // We only care about authenticated users.
+  if (!user_is_logged_in()) {
+    return;
+  }
+
+  $plan = deploy_auto_plan_get_plan();
+  if ($plan) {
+    $env['name'] .= t(' [Plan: @plan]', array('@plan' => $plan));
+  }
+}

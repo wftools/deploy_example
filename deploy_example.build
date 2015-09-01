@@ -1,0 +1,10 @@
+; Drush make file for deploy_example dependencies.
+
+api = 2
+core = "7.x"
+
+projects[] = drupal
+
+projects[deploy_example][type] = module
+projects[deploy_example][download][type] = "git"
+projects[deploy_example][download][url] = "FIXME"
